@@ -3,6 +3,7 @@ import { useInput } from "../hooks/useInput";
 import { type RootState } from "../store/store";
 import { useSelector } from "react-redux";
 import Spinner from "./ui/Spinner";
+import { validateEmail, validatePassword} from "../utils/auth";
 
 interface AuthFormProps {
     submitFunction: (email: string, password: string) => void;
@@ -19,7 +20,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
         isValid: isEmailValid,
         handleChange: handleEmailChange,
         handleTouch: handleEmailTouch
-    } = useInput((value: string) => value.includes('@'));
+    } = useInput(validateEmail);
 
     const { 
         value: passwordValue, 
@@ -27,7 +28,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
         isValid: isPasswordValid,
         handleChange: handlePasswordChange,
         handleTouch: handlePasswordTouch
-    } = useInput((value: string) => value.length >= 8);
+    } = useInput(validatePassword);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();

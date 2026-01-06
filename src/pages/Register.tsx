@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { register } from "../store/slices/auth";
 import { type AppDispatch } from "../store/store";
 import { useNavigate } from "react-router-dom";
+import AuthPagesContainer from "../components/AuthPagesContainer";
 
 export default function RegisterPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -16,8 +17,7 @@ export default function RegisterPage() {
         }
     };
 
-    return <div>
-        Register Page
-        <AuthForm submitFunction={handleRegister} />
-    </div>
+    return <AuthPagesContainer>
+            <AuthForm submitFunction={handleRegister} formTitle="Register" buttonText="Register" activeText="Submitting..." isRegistration />
+        </AuthPagesContainer>
 }

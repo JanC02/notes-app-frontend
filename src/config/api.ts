@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { AxiosResponse } from "axios";
 import type { RefreshResponse } from "../types/api";
 
 export const api = axios.create({
@@ -21,6 +22,8 @@ api.interceptors.request.use(
     }
 );
 
+let refreshPromise: Promise<AxiosResponse<RefreshResponse>> | null = null;
+
 api.interceptors.response.use(
     undefined,
     async (error) => {
@@ -37,15 +40,25 @@ api.interceptors.response.use(
             }
 
             try {
-                const refreshToken = localStorage.getItem('refreshToken');
-                const response = await axios.post<RefreshResponse>(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/auth/refresh`, {
-                    refreshToken,
-                });
-                const { accessToken, refreshToken: newRefreshToken } = response.data;
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', newRefreshToken);
-                api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-                return api(originalRequest);
+                if (refreshPromise !== null) {
+                    await refreshPromise;
+                    return api(originalRequest);
+                } else {
+                    const refreshToken = localStorage.getItem('refreshToken');
+                    refreshPromise = axios.post<RefreshResponse>(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/auth/refresh`, {
+                        refreshToken,
+                    }).then(response => {
+                        const { accessToken, refreshToken: newRefreshToken } = response.data;
+                        localStorage.setItem('accessToken', accessToken);
+                        localStorage.setItem('refreshToken', newRefreshToken);
+                        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+                        return api(originalRequest);
+                    })
+                    .finally(() => {
+                        refreshPromise = null;
+                    });
+                    return refreshPromise
+                }
             } catch (refreshError) {
                 console.log('refresh failed, redirect');
                 localStorage.removeItem('accessToken');

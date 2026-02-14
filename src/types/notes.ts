@@ -3,7 +3,8 @@ export interface Note {
     userId: number;
     title: string;
     content: string;
-    createdAt: Date;
+    createdAt: string;
 }
 
 export type NoteResponse = Omit<Note, 'userId' | 'content'>;
+export type ParsedNoteResponse = Omit<NoteResponse, 'createdAt'> & { createdAt: Date };

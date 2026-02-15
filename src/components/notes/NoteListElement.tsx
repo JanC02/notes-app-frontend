@@ -4,7 +4,7 @@ interface NoteListElementProps {
 }
 
 export default function NoteListElement({ title, createdAt }: NoteListElementProps) {
-    return <li className='flex p-4 shadow-xl rounded-md bg-[#f7f7f7] text-[#404040] border border-stone-200'>
+    return <li className='flex p-4 shadow-xl rounded-md bg-[#f7f7f7] text-[#404040] border border-stone-200 cursor-pointer transition delay-50 hover:-translate-y-3'>
         <div className='grow flex flex-col gap-y-6 justify-between'>
             <h2 className='text-xl'>{title}</h2>
             <div className='flex gap-x-2'>

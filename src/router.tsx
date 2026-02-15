@@ -7,6 +7,7 @@ import NotesPage from "./pages/Notes";
 import UnprotectedRoute from "./components/UnprotectedRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotesLayout from "./components/notes/NotesLayout.tsx";
+import NewNote from "./pages/NewNote.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
                     {
                         index: true,
                         element: <NotesPage />
+                    },
+                    {
+                        path: 'new',
+                        element: <NewNote />
                     }
                 ]
             }

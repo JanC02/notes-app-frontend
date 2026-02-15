@@ -22,8 +22,8 @@ export default function NotesList() {
     });
     const sortedNotes = sortNotes(parsedNotes);
 
-    return <section className="max-w-7xl mx-auto p-4">
-        <ul className="flex flex-col gap-y-4 pt-10">
+    return <section>
+        <ul className="flex flex-col gap-y-4">
             {
                 sortedNotes.map((note) => (
                     <NoteListElement key={note.id} title={note.title} createdAt={`${note.createdAt.toLocaleTimeString('en-us')} ${note.createdAt.toLocaleDateString('en-us')}`} />

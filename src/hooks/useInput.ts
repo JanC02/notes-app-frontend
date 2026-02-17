@@ -1,13 +1,14 @@
 import { useState } from "react";
 
-export function useInput(
-    validateFn: (value: string) => boolean
+export function useInput<T>(
+    validateFn: (value: T) => boolean,
+    initialValue: T
 ) {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<T>(initialValue);
     const [isError, setIsError] = useState(false);
     const [isTouched, setIsTouched] = useState(false);
 
-    const handleChange = (value: string) => {
+    const handleChange = (value: T) => {
         const isValid = validateFn(value);
         setIsError(!isValid)
         setValue(value);
@@ -20,7 +21,6 @@ export function useInput(
     return {
         value,
         error: isError && isTouched,
-        isValid: !isError && value.trim().length > 0,
         handleChange,
         handleTouch
     }

@@ -26,20 +26,18 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
         error: titleError,
         handleChange: handleTitleChange,
         handleTouch: handleTitleTouch,
-        isValid: isTitleValid
-    } = useInput((value: string) => validateLength(value, 1, 255));
+    } = useInput<string>((value: string) => validateLength(value, 1, 255), "");
 
     const {
         value: contentValue,
         error: contentError,
         handleChange: handleContentChange,
         handleTouch: handleContentTouch,
-        isValid: isContentValid
-    } = useInput((value: string) => validateLength(value, 1, 1000));
+    } = useInput<string>((value: string) => validateLength(value, 1, 1000), "");
 
     const handleSubmit= async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (isTitleValid && isContentValid) {
+        if (titleValue.length > 0 && contentValue.length > 0) {
             if (isEditing) {
                 console.log('Editing note');
             } else {
@@ -77,7 +75,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
             onBlur={handleContentTouch}
         />
         <span className={`text-red-500 mt-4 ${bottomErrorText ? 'visible' : 'invisible'}`}>{bottomErrorText}</span>
-        <NoteButton disabled={!isTitleValid && !isContentValid} className={`ml-auto flex gap-x-1 items-center ${!isTitleValid && !isContentValid ? 'cursor-not-allowed!' : ''}`}>
+        <NoteButton disabled={titleValue.length === 0 || contentValue.length === 0} className={`ml-auto flex gap-x-1 items-center ${titleValue.length === 0 || contentValue.length === 0 ? 'cursor-not-allowed!' : ''}`}>
             { isLoading && <Spinner className='text-stone-100 w-4 h-4' />}
             Submit
         </NoteButton>

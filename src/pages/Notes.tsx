@@ -10,7 +10,7 @@ export default function NotesPage() {
     }
 
     return <>
-        <div className='max-w-7xl mx-auto'>
+        <div className='w-full grow max-w-7xl mx-auto flex flex-col'>
             <NoteButton onClick={clickHandler}>
                 + Add new note
             </NoteButton>

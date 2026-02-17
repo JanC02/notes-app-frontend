@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../../config/api.ts";
-import axios from "axios";
 import type { NoteResponse } from "../../types/notes.ts";
 
 interface NotesState {
     allNotes: NoteResponse[];
-    // notesStatus: SubmittingStatus;
+    notesLoading: boolean;
+    notesError: string;
     singleNoteIsLoading: boolean;
     singleNoteError: string;
 }
@@ -17,7 +17,8 @@ interface SubmitNote {
 
 const NotesState: NotesState = {
     allNotes: [],
-    // notesStatus: null,
+    notesLoading: false,
+    notesError: '',
     singleNoteIsLoading: false,
     singleNoteError: '',
 };
@@ -25,20 +26,19 @@ const NotesState: NotesState = {
 const notesSlice = createSlice({
     name: 'notes',
     initialState: NotesState,
-    reducers: {
-        resetNotesStatus(state) {
-            // state.notesStatus = null;
-        }
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder.addCase(getAllNotes.pending, (state) => {
-            // state.notesStatus = 'loading';
+            state.notesLoading = true;
+            state.notesError = '';
         })
-        .addCase(getAllNotes.rejected, (state) => {
-            // state.notesStatus = 'error';
+        .addCase(getAllNotes.rejected, (state, action) => {
+            state.notesLoading = false;
+            state.notesError = action.payload as string;
         })
         .addCase(getAllNotes.fulfilled, (state, action) => {
-            // state.notesStatus = null;
+            state.notesLoading = false;
+            state.notesError = '';
             state.allNotes = action.payload;
         })
         .addCase(addNote.pending, (state) => {
@@ -58,9 +58,14 @@ const notesSlice = createSlice({
 
 export const getAllNotes = createAsyncThunk(
     'notes/getAllNotes',
-    async () => {
-        const result = await api.get<NoteResponse[]>('/notes');
-        return result.data;
+    async (_, { rejectWithValue }) => {
+        try {
+            const result = await api.get<NoteResponse[]>('/notes');
+            return result.data;
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue('An error occurred while getting notes. Please try again.');
+        }
     }
 );
 
@@ -80,4 +85,3 @@ export const addNote = createAsyncThunk(
 );
 
 export default notesSlice.reducer;
-export const { resetNotesStatus } = notesSlice.actions;

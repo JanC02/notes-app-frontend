@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "../ui/Spinner.tsx";
 import NoteButton from "./NoteButton.tsx";
 import { addNote } from "../../store/slices/notes.ts";
+import { api } from "../../config/api.ts";
+import { useState } from "react";
 import type { Note } from "../../types/notes.ts";
 import type { ChangeEvent, SyntheticEvent } from "react";
 import type { AppDispatch, RootState } from "../../store/store.ts";
@@ -21,25 +23,39 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     const isLoading = useSelector((state: RootState) => state.notes.singleNoteIsLoading);
     const error = useSelector((state: RootState) => state.notes.singleNoteError);
 
+    // const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const {
         value: titleValue,
         error: titleError,
         handleChange: handleTitleChange,
         handleTouch: handleTitleTouch,
-    } = useInput<string>((value: string) => validateLength(value, 1, 255), "");
+    } = useInput<string>((value: string) => validateLength(value, 1, 255), note?.title || "");
 
     const {
         value: contentValue,
         error: contentError,
         handleChange: handleContentChange,
         handleTouch: handleContentTouch,
-    } = useInput<string>((value: string) => validateLength(value, 1, 1000), "");
+    } = useInput<string>((value: string) => validateLength(value, 1, 1000), note?.content || "");
 
     const handleSubmit= async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (titleValue.length > 0 && contentValue.length > 0) {
             if (isEditing) {
-                console.log('Editing note');
+                try {
+                    setIsSubmitting(true);
+                    await api.put(`/notes/${note?.id}`, {
+                        title: titleValue,
+                        content: contentValue,
+                    });
+                    setIsSubmitting(false);
+                    navigate('/notes');
+                } catch (error) {
+                    console.error(error);
+                    setIsSubmitting(false);
+                }
             } else {
                 const resultAction = await dispatch(addNote({ title: titleValue, content: contentValue }));
 

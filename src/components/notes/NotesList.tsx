@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { sortNotes } from "../../utils/sortNotes.ts";
 import NoteListElement from "./NoteListElement.tsx";
 import Spinner from "../ui/Spinner.tsx";
+import ErrorMessage from "../ui/ErrorMessage.tsx";
 
 export default function NotesList() {
     const dispatch = useDispatch<AppDispatch>();
@@ -29,13 +30,11 @@ export default function NotesList() {
         {isLoading && !error && <div className='grow flex justify-center items-center'>
             <Spinner className='text-[#404040] w-13 h-13' />
         </div>}
-        {!isLoading && error && <div className='grow flex justify-center items-center'>
-            <p className='text-[#404040] text-xl'>{error}</p>
-        </div>}
+        {!isLoading && error && <ErrorMessage message={error} />}
         {!isLoading && !error && <ul className="flex flex-col gap-y-4">
             {
                 sortedNotes.map((note) => (
-                    <NoteListElement key={note.id} title={note.title} createdAt={`${note.createdAt.toLocaleTimeString('en-us')} ${note.createdAt.toLocaleDateString('en-us')}`} />
+                    <NoteListElement key={note.id} id={note.id} title={note.title} createdAt={`${note.createdAt.toLocaleTimeString('en-us')} ${note.createdAt.toLocaleDateString('en-us')}`} />
                 ))
             }
         </ul>}

@@ -1,20 +1,47 @@
 import NotesList from "../components/notes/NotesList.tsx";
 import { useNavigate } from "react-router-dom";
 import NoteButton from "../components/notes/NoteButton.tsx";
+import { useState, useEffect } from "react";
+import Spinner from "../components/ui/Spinner.tsx";
+import ErrorMessage from "../components/ui/ErrorMessage.tsx";
+import type { NoteResponse } from "../types/notes.ts";
+import { api } from "../config/api.ts";
 
 export default function NotesPage() {
     const navigate = useNavigate();
+    const [notes, setNotes] = useState<NoteResponse[] | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-    const clickHandler = () => {
-        navigate("/notes/new");
-    }
+    useEffect(() => {
+        async function fetchNotes() {
+            try {
+                const res = await api.get<NoteResponse[]>('/notes');
+                setNotes(res.data);
+            } catch {
+                setError(true);
+            } finally {
+                setIsLoading(false);
+            }
+        }
 
-    return <>
-        <div className='w-full grow max-w-7xl mx-auto flex flex-col'>
-            <NoteButton onClick={clickHandler}>
-                + Add new note
-            </NoteButton>
-            <NotesList />
+        fetchNotes();
+    }, []);
+
+    if (isLoading) return (
+        <div className='grow flex justify-center items-center'>
+            <Spinner className='text-[#404040] w-13 h-13' />
         </div>
-    </>
+    );
+
+    if (error) return (
+        <ErrorMessage message="An error occurred while fetching notes. Please try again." />
+    );
+
+    return <div className="w-full grow max-w-7xl mx-auto flex flex-col">
+        <NoteButton onClick={() => navigate("/notes/new")}>
+            + Add new note
+        </NoteButton>
+        <NotesList notes={notes!} />
+    </div>
 }

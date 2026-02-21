@@ -67,7 +67,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
         bottomErrorText = "Note content must be between 1 and 10000 characters";
     }
 
-    return <form className="pt-7 flex flex-col" onSubmit={handleSubmit}>
+    return <form className="pt-7 flex flex-col grow" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-y-3">
             <label htmlFor="note-title">
                 Note title:
@@ -82,6 +82,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
             value={contentValue}
             onChange={(value) => handleContentChange(value!)}
             onBlur={handleContentTouch}
+            className='grow min-h-75'
         />
         <span className={`text-red-500 mt-4 ${bottomErrorText ? 'visible' : 'invisible'}`}>{bottomErrorText}</span>
         <NoteButton disabled={titleValue.length === 0 || contentValue.length === 0} className={`ml-auto flex gap-x-1 items-center ${titleValue.length === 0 || contentValue.length === 0 ? 'cursor-not-allowed!' : ''}`}>

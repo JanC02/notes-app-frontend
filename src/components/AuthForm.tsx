@@ -14,26 +14,24 @@ interface AuthFormProps {
 };
 
 export default function AuthForm({ submitFunction, formTitle, buttonText, activeText, isRegistration = false }: AuthFormProps) {
-    const { 
-        value: emailValue, 
+    const {
+        value: emailValue,
         error: emailError,
-        isValid: isEmailValid,
         handleChange: handleEmailChange,
         handleTouch: handleEmailTouch
-    } = useInput(validateEmail);
+    } = useInput<string>(validateEmail, "");
 
-    const { 
-        value: passwordValue, 
+    const {
+        value: passwordValue,
         error: passwordError,
-        isValid: isPasswordValid,
         handleChange: handlePasswordChange,
         handleTouch: handlePasswordTouch
-    } = useInput(validatePassword);
+    } = useInput<string>(validatePassword, "");
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        if (!isRegistration || (isEmailValid && isPasswordValid)) {
+        if (!isRegistration || (!emailError && !passwordError)) {
             submitFunction(emailValue, passwordValue);
         }
     };
@@ -58,7 +56,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
                 <p className="text-red-500">{error}</p>
             </div> }
         </div>
-        <button disabled={isRegistration && (!isEmailValid || !isPasswordValid)} className="flex gap-x-3 py-2 px-4 justify-center items-center bg-emerald-500 text-stone-100 font-medium shadow-md rounded-md cursor-pointer disabled:cursor-not-allowed">
+        <button disabled={isRegistration && (emailValue.length === 0 || passwordValue.length === 0)} className="flex gap-x-3 py-2 px-4 justify-center items-center bg-emerald-500 text-stone-100 font-medium shadow-md rounded-md cursor-pointer disabled:cursor-not-allowed">
             { isLoading ? <>{activeText} <Spinner className="text-stone-100 w-4 h-4"/></> : buttonText }
         </button>
     </form>

@@ -6,7 +6,10 @@ import RegisterPage from "./pages/Register";
 import NotesPage from "./pages/Notes";
 import UnprotectedRoute from "./components/UnprotectedRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import NotesLayout from "./components/notes/NotesLayout.tsx";
+import NewNote from "./pages/NewNote.tsx";
+import EditNote from "./pages/EditNote.tsx";
+import { noteLoader } from "./loaders/noteLoader.ts";
 
 export const router = createBrowserRouter([
     {
@@ -32,8 +35,23 @@ export const router = createBrowserRouter([
             {
                 path: '/notes',
                 element: <ProtectedRoute>
-                    <NotesPage />
-                </ProtectedRoute>
+                    <NotesLayout />
+                </ProtectedRoute>,
+                children: [
+                    {
+                        index: true,
+                        element: <NotesPage />,
+                    },
+                    {
+                        path: 'new',
+                        element: <NewNote />
+                    },
+                    {
+                        path: ':id',
+                        element: <EditNote />,
+                        loader: noteLoader
+                    }
+                ]
             }
         ]
     }

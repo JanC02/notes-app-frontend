@@ -4,7 +4,7 @@ import NoteButton from "../components/notes/NoteButton.tsx";
 import { useState, useEffect } from "react";
 import Spinner from "../components/ui/Spinner.tsx";
 import ErrorMessage from "../components/ui/ErrorMessage.tsx";
-import type { NoteResponse } from "../types/notes.ts";
+import type { NoteResponse, NoteId } from "../types/notes.ts";
 import { api } from "../config/api.ts";
 
 export default function NotesPage() {
@@ -28,6 +28,17 @@ export default function NotesPage() {
         fetchNotes();
     }, []);
 
+    const handleDelete = async (id: NoteId) => {
+        try {
+            if (confirm("Are you sure you want to delete this note?")) {
+                await api.delete(`/notes/${id}`);
+                setNotes(prev => prev!.filter(note => note.id !== id));
+            }
+        } catch(error) {
+            console.error(error)
+        }
+    };
+
     if (isLoading) return (
         <div className='grow flex justify-center items-center'>
             <Spinner className='text-[#404040] w-13 h-13' />
@@ -42,6 +53,6 @@ export default function NotesPage() {
         <NoteButton onClick={() => navigate("/notes/new")}>
             + Add new note
         </NoteButton>
-        <NotesList notes={notes!} />
+        <NotesList notes={notes!} onDelete={handleDelete} />
     </div>
 }

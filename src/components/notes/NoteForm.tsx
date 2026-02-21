@@ -67,27 +67,38 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
         bottomErrorText = "Note content must be between 1 and 10000 characters";
     }
 
-    return <form className="pt-7 flex flex-col grow" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-y-3">
-            <label htmlFor="note-title">
-                Note title:
-            </label>
-            <input id="note-title" name="note-title" className="h-10 rounded-md bg-[#f7f7f7] p-4 border border-stone-700/60" type="text" value={titleValue} required
-                   onChange={(e: ChangeEvent<HTMLInputElement>) => handleTitleChange(e.target.value)}
-                   onBlur={handleTitleTouch}
-            />
-            <span className={`text-red-500 ${titleError ? 'visible' : 'invisible'}`}>Title must be between 1 and 255 characters.</span>
-        </div>
-        <MDEditor
-            value={contentValue}
-            onChange={(value) => handleContentChange(value!)}
-            onBlur={handleContentTouch}
-            className='grow min-h-75'
-        />
-        <span className={`text-red-500 mt-4 ${bottomErrorText ? 'visible' : 'invisible'}`}>{bottomErrorText}</span>
-        <NoteButton disabled={titleValue.length === 0 || contentValue.length === 0} className={`ml-auto flex gap-x-1 items-center ${titleValue.length === 0 || contentValue.length === 0 ? 'cursor-not-allowed!' : ''}`}>
-            { isSubmitting && <Spinner className='text-stone-100 w-4 h-4' />}
-            Submit
+    const goBackHandler = () => {
+        if (confirm("Are you sure? Unsaved changes will be lost.")) {
+            navigate('/notes');
+        }
+    }
+
+    return <div className="flex flex-col grow">
+        <NoteButton onClick={goBackHandler}>
+            {`<- Go back`}
         </NoteButton>
-    </form>
+        <form className="flex flex-col grow" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-y-3">
+                <label htmlFor="note-title">
+                    Note title:
+                </label>
+                <input id="note-title" name="note-title" className="h-10 rounded-md bg-[#f7f7f7] p-4 border border-stone-700/60" type="text" value={titleValue} required
+                       onChange={(e: ChangeEvent<HTMLInputElement>) => handleTitleChange(e.target.value)}
+                       onBlur={handleTitleTouch}
+                />
+                <span className={`text-red-500 ${titleError ? 'visible' : 'invisible'}`}>Title must be between 1 and 255 characters.</span>
+            </div>
+            <MDEditor
+                value={contentValue}
+                onChange={(value) => handleContentChange(value!)}
+                onBlur={handleContentTouch}
+                className='grow min-h-75'
+            />
+            <span className={`text-red-500 mt-4 ${bottomErrorText ? 'visible' : 'invisible'}`}>{bottomErrorText}</span>
+            <NoteButton disabled={titleValue.length === 0 || contentValue.length === 0} className={`ml-auto flex gap-x-1 items-center ${titleValue.length === 0 || contentValue.length === 0 ? 'cursor-not-allowed!' : ''}`}>
+                { isSubmitting && <Spinner className='text-stone-100 w-4 h-4' />}
+                Submit
+            </NoteButton>
+        </form>
+    </div>
 }

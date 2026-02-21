@@ -24,14 +24,14 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
         error: titleError,
         handleChange: handleTitleChange,
         handleTouch: handleTitleTouch,
-    } = useInput<string>((value: string) => validateLength(value, 1, 255), note?.title || "");
+    } = useInput<string>((value: string) => validateLength(value, 5, 255), note?.title || "");
 
     const {
         value: contentValue,
         error: contentError,
         handleChange: handleContentChange,
         handleTouch: handleContentTouch,
-    } = useInput<string>((value: string) => validateLength(value, 1, 1000), note?.content || "");
+    } = useInput<string>((value: string) => validateLength(value, 5, 1000), note?.content || "");
 
     const handleSubmit= async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -64,7 +64,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     if (error) {
         bottomErrorText = error;
     } else if (contentError) {
-        bottomErrorText = "Note content must be between 1 and 10000 characters";
+        bottomErrorText = "Note content must be between 5 and 10000 characters";
     }
 
     const goBackHandler = () => {
@@ -78,7 +78,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
             {`Go back`}
         </NoteButton>
         <form className="flex flex-col grow" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-y-3">
+            <div className={`flex flex-col gap-y-3 ${!titleError && "mb-3"}`}>
                 <label htmlFor="note-title">
                     Note title:
                 </label>
@@ -86,7 +86,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
                        onChange={(e: ChangeEvent<HTMLInputElement>) => handleTitleChange(e.target.value)}
                        onBlur={handleTitleTouch}
                 />
-                <span className={`text-red-500 ${titleError ? 'visible' : 'invisible'}`}>Title must be between 1 and 255 characters.</span>
+                <span className={`text-red-500 mb-3 ${titleError ? 'block' : 'hidden'}`}>Title must be between 5 and 255 characters.</span>
             </div>
             <MDEditor
                 value={contentValue}
@@ -94,8 +94,8 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
                 onBlur={handleContentTouch}
                 className='grow min-h-75'
             />
-            <span className={`text-red-500 mt-4 ${bottomErrorText ? 'visible' : 'invisible'}`}>{bottomErrorText}</span>
-            <NoteButton disabled={titleValue.length === 0 || contentValue.length === 0} className={`ml-auto flex gap-x-1 items-center ${titleValue.length === 0 || contentValue.length === 0 ? 'cursor-not-allowed!' : ''}`}>
+            <span className={`text-red-500 mt-3 ${bottomErrorText ? 'visible' : 'invisible'}`}>{bottomErrorText}</span>
+            <NoteButton disabled={titleError || contentError} className={`ml-auto flex gap-x-1 items-center ${titleError || contentError ? 'cursor-not-allowed!' : ''}`}>
                 { isSubmitting && <Spinner className='text-stone-100 w-4 h-4' />}
                 Submit
             </NoteButton>

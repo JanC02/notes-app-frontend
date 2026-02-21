@@ -4,6 +4,7 @@ import { type RootState } from "../store/store";
 import { useSelector } from "react-redux";
 import Spinner from "./ui/Spinner";
 import { validateEmail, validatePassword} from "../utils/auth";
+import { Link } from "react-router-dom";
 
 interface AuthFormProps {
     submitFunction: (email: string, password: string) => void;
@@ -40,7 +41,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
     const error = useSelector((state: RootState) => state.auth.error);
 
     return <form onSubmit={handleSubmit} className="rounded-md shadow-lg w-md m-6 p-8 bg-[#f7f7f7] text-stone-900 flex flex-col">
-        <h2 className="text-2xl font-medium mb-8">{formTitle}</h2>
+        <h1 className="text-2xl font-medium mb-8">{formTitle}</h1>
         <div className="flex flex-col gap-y-4 mb-8">
             <div className="flex flex-col gap-y-3">
                 <label htmlFor="email">Email:</label>
@@ -59,5 +60,13 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
         <button disabled={isRegistration && (emailValue.length === 0 || passwordValue.length === 0)} className="flex gap-x-3 py-2 px-4 justify-center items-center bg-emerald-500 text-stone-100 font-medium shadow-md rounded-md cursor-pointer disabled:cursor-not-allowed">
             { isLoading ? <>{activeText} <Spinner className="text-stone-100 w-4 h-4"/></> : buttonText }
         </button>
+        <div className="mx-auto mt-3">
+            <span className="mr-1">
+                {isRegistration ? "Already have an account?" : "Don't have an account?"}
+            </span>
+            <Link to={`${isRegistration ? "/login" : "/register"}`} className="underline">
+                {isRegistration ? "Log in" : "Sign up"}
+            </Link>
+        </div>
     </form>
 }

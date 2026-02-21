@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: 'Reddit Sans';
+    src: url('./assets/fonts/RedditSans-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Reddit Sans';
+    src: url('./assets/fonts/RedditSans-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@layer base {
+    body {
+        font-family: 'Reddit Sans', sans-serif;
+    }
+}

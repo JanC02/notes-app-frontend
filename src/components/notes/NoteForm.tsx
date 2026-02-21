@@ -75,7 +75,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
 
     return <div className="flex flex-col grow">
         <NoteButton onClick={goBackHandler}>
-            {`<- Go back`}
+            {`Go back`}
         </NoteButton>
         <form className="flex flex-col grow" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-y-3">

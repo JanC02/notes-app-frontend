@@ -1,5 +1,5 @@
 import type {NoteResponse, NoteId, ParsedNoteResponse} from "../../types/notes.ts";
-import {sortNotes} from "../../utils/sortNotes.ts";
+import {sortNotes} from "../../utils/notes.ts";
 import {filterFavoriteNotes} from "../../utils/notes.ts";
 import NoteListElement from "./NoteListElement.tsx";
 

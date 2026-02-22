@@ -4,6 +4,12 @@ export function validateLength(value: string, min: number, max: number) {
     return value.length >= min && value.length <= max;
 }
 
+export function sortNotes(notes: ParsedNoteResponse[]) {
+    return notes.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+}
+
 export function filterFavoriteNotes(notes: ParsedNoteResponse[]) {
     const favoriteNotes: ParsedNoteResponse[] = [];
     const unfavoriteNotes: ParsedNoteResponse[] = [];

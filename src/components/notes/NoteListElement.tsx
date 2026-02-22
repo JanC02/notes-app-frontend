@@ -6,10 +6,12 @@ interface NoteListElementProps {
     id: NoteId
     title: string;
     createdAt: string;
+    isFavorite: boolean;
     onDelete: (id: NoteId) => void;
+    onSetFavorite: (id: NoteId, isFavorite: boolean) => Promise<void>;
 }
 
-export default function NoteListElement({ id, title, createdAt, onDelete }: NoteListElementProps) {
+export default function NoteListElement({ id, title, createdAt, isFavorite, onDelete, onSetFavorite }: NoteListElementProps) {
     const navigate = useNavigate();
 
     const clickHandler = () => {
@@ -21,9 +23,21 @@ export default function NoteListElement({ id, title, createdAt, onDelete }: Note
         onDelete(id);
     }
 
+    const handleSetFavorite = (e: MouseEvent) => {
+        e.stopPropagation();
+        onSetFavorite(id, !isFavorite);
+    }
+
     return <li onClick={clickHandler} className='flex p-4 shadow-xl rounded-md bg-[#f7f7f7] text-[#404040] border border-stone-200 cursor-pointer transition delay-50 hover:-translate-y-3'>
         <div className='grow flex flex-col gap-y-4 lg:gap-y-6 justify-between'>
-            <h2 className='text-lg lg:text-xl'>{title}</h2>
+            <div className='flex gap-x-2 items-center'>
+                <button className='cursor-pointer' aria-label={isFavorite ? 'Remove from favourites' : 'Add to favourites'} onClick={handleSetFavorite}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={isFavorite ? '#404040' : 'none'} className={`transition-colors delay-100 hover:fill-[#404040]`} stroke="#404040" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                </button>
+                <h2 className='text-lg lg:text-xl'>{title}</h2>
+            </div>
             <div className='flex gap-x-2'>
                 <span className='text-xs'>
                     Last modified:

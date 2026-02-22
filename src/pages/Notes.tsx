@@ -39,6 +39,25 @@ export default function NotesPage() {
         }
     };
 
+    const handleSetIsFavorite = async (id: NoteId, isFavorite: boolean) => {
+        try {
+            await api.patch(`/notes/${id}`, {
+                isFavorite,
+            });
+            setNotes(prev => prev?.map(note => {
+                if (note.id !== id) {
+                    return note;
+                }
+                return {
+                    ...note,
+                    isFavorite: isFavorite,
+                }
+            }) ?? null);
+        } catch(error) {
+            console.error(error)
+        }
+    };
+
     if (isLoading) return (
         <div className='grow flex justify-center items-center'>
             <Spinner className='text-[#404040] w-13 h-13' />
@@ -53,6 +72,6 @@ export default function NotesPage() {
         <NoteButton onClick={() => navigate("/notes/new")}>
             + Add new note
         </NoteButton>
-        <NotesList notes={notes!} onDelete={handleDelete} />
+        <NotesList notes={notes!} onDelete={handleDelete} onSetFavorite={handleSetIsFavorite} />
     </div>
 }

@@ -4,6 +4,7 @@ export interface Note {
     title: string;
     content: string;
     createdAt: string;
+    isFavorite: boolean;
 }
 
 export type NoteId = Note["id"];

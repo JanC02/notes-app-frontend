@@ -20,6 +20,10 @@
     body {
         font-family: 'Reddit Sans', sans-serif;
     }
+
+    dialog {
+        margin: auto;
+    }
 }
 
 .wmde-markdown ul {

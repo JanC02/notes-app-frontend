@@ -27,7 +27,7 @@ export default function Modal({ open, onClose, onConfirm, title, message, isLoad
 
     return (
         createPortal(
-            <dialog ref={dialogRef} onClose={onClose} className='text-[#404040] min-w-80 min-h-50 p-4 rounded-md flex flex-col backdrop:bg-linear-to-br backdrop:from-stone-100 backdrop:via-stone-200 backdrop:to-stone-300 backdrop:opacity-70'>
+            <dialog ref={dialogRef} onClose={onClose} className='text-[#404040] w-80 max-w-[calc(100%-2rem)] min-h-50 p-4 rounded-md flex flex-col backdrop:bg-linear-to-br backdrop:from-stone-100 backdrop:via-stone-200 backdrop:to-stone-300 backdrop:opacity-70'>
                 <div className='flex justify-between w-full text-xl'>
                     <h2 className="font-semibold">{title}</h2>
                     <button onClick={onClose} className="text cursor-pointer hover:text-red-500">

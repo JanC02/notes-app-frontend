@@ -7,11 +7,11 @@ interface NoteListElementProps {
     title: string;
     createdAt: string;
     isFavorite: boolean;
-    onDelete: (id: NoteId) => void;
+    onSetModalVisible: (id: NoteId) => void;
     onSetFavorite: (id: NoteId, isFavorite: boolean) => Promise<void>;
 }
 
-export default function NoteListElement({ id, title, createdAt, isFavorite, onDelete, onSetFavorite }: NoteListElementProps) {
+export default function NoteListElement({ id, title, createdAt, isFavorite, onSetModalVisible, onSetFavorite }: NoteListElementProps) {
     const navigate = useNavigate();
 
     const clickHandler = () => {
@@ -20,7 +20,7 @@ export default function NoteListElement({ id, title, createdAt, isFavorite, onDe
 
     const deleteHandler = (e: MouseEvent) => {
         e.stopPropagation();
-        onDelete(id);
+        onSetModalVisible(id);
     }
 
     const handleSetFavorite = (e: MouseEvent) => {

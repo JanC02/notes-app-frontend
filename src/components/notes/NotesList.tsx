@@ -5,11 +5,11 @@ import NoteListElement from "./NoteListElement.tsx";
 
 interface NotesListProps {
     notes: NoteResponse[];
-    onDelete: (id: NoteId) => void;
+    onSetModalVisible: (id: NoteId) => void;
     onSetFavorite: (id: NoteId, isFavorite: boolean) => Promise<void>;
 }
 
-export default function NotesList({notes, onDelete, onSetFavorite}: NotesListProps) {
+export default function NotesList({notes, onSetModalVisible, onSetFavorite}: NotesListProps) {
     const parsedNotes: ParsedNoteResponse[] = notes.map(note => {
         return {
             ...note,
@@ -27,7 +27,7 @@ export default function NotesList({notes, onDelete, onSetFavorite}: NotesListPro
                     favoriteNotes.map((note) => (
                         <NoteListElement key={note.id} id={note.id} title={note.title}
                                          createdAt={`${note.createdAt.toLocaleTimeString('en-us')} ${note.createdAt.toLocaleDateString('en-us')}`}
-                                         onDelete={onDelete} isFavorite={true}
+                                         onSetModalVisible={onSetModalVisible} isFavorite={true}
                                          onSetFavorite={onSetFavorite}/>
                     ))
                 }
@@ -39,7 +39,7 @@ export default function NotesList({notes, onDelete, onSetFavorite}: NotesListPro
                 unfavoriteNotes.map((note) => (
                     <NoteListElement key={note.id} id={note.id} title={note.title}
                                      createdAt={`${note.createdAt.toLocaleTimeString('en-us')} ${note.createdAt.toLocaleDateString('en-us')}`}
-                                     onDelete={onDelete} isFavorite={false}
+                                     onSetModalVisible={onSetModalVisible} isFavorite={false}
                                      onSetFavorite={onSetFavorite}/>
                 ))
             }

@@ -6,6 +6,7 @@ import Spinner from "../ui/Spinner.tsx";
 import NoteButton from "./NoteButton.tsx";
 import { api } from "../../config/api.ts";
 import { useState } from "react";
+import Modal from "../ui/Modal.tsx";
 import type { Note } from "../../types/notes.ts";
 import type { ChangeEvent, SyntheticEvent } from "react";
 
@@ -18,6 +19,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const {
         value: titleValue,
@@ -68,9 +70,16 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     }
 
     const goBackHandler = () => {
-        if (confirm("Are you sure? Unsaved changes will be lost.")) {
-            navigate('/notes');
-        }
+        setIsModalVisible(true);
+    }
+
+    const handleConfirm = () => {
+        setIsModalVisible(false);
+        navigate('/notes');
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
     }
 
     return <div className="flex flex-col grow">
@@ -100,5 +109,6 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
                 Submit
             </NoteButton>
         </form>
+        { isModalVisible && <Modal open={isModalVisible} onClose={handleCancel} onConfirm={handleConfirm} title="Are you sure?" message="Unsaved changes will be lost." />}
     </div>
 }

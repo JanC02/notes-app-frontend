@@ -7,6 +7,9 @@ import ErrorMessage from "../components/ui/ErrorMessage.tsx";
 import type {NoteResponse, NoteId} from "../types/notes.ts";
 import {api} from "../config/api.ts";
 import Modal from "../components/ui/Modal.tsx";
+import { showNotification } from "../store/slices/notification.ts";
+import {useDispatch} from "react-redux";
+import type {AppDispatch} from "../store/store.ts";
 
 export default function NotesPage() {
     const navigate = useNavigate();
@@ -15,6 +18,8 @@ export default function NotesPage() {
     const [error, setError] = useState(false);
     const [noteToDelete, setNoteToDelete] = useState<NoteId | null>(null);
     const [isDeletingNote, setIsDeletingNote] = useState(false);
+
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         async function fetchNotes() {
@@ -41,6 +46,7 @@ export default function NotesPage() {
             setNotes(prev => prev!.filter(note => note.id !== noteToDelete));
             setIsDeletingNote(false);
             setNoteToDelete(null);
+            dispatch(showNotification('Note has been deleted. '));
         } catch (error) {
             console.error(error);
             setIsDeletingNote(false);

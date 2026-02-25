@@ -1,7 +1,10 @@
 import { createSlice, type PayloadAction, type Dispatch } from "@reduxjs/toolkit";
 
+type NotificationType = "success" | "error";
+
 interface Notification {
     id: string;
+    type: NotificationType;
     message: string;
 }
 
@@ -28,7 +31,7 @@ const notificationSlice = createSlice({
 
 const { addNotification, removeNotification } = notificationSlice.actions;
 
-export const showNotification = (message: string) => (dispatch: Dispatch) => {
+export const showNotification = (message: string, type: NotificationType) => (dispatch: Dispatch) => {
     if (message.trim() === "") {
         return;
     }
@@ -37,6 +40,7 @@ export const showNotification = (message: string) => (dispatch: Dispatch) => {
 
     dispatch(addNotification({
         id,
+        type,
         message,
     }));
 

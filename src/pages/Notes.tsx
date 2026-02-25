@@ -46,11 +46,12 @@ export default function NotesPage() {
             setNotes(prev => prev!.filter(note => note.id !== noteToDelete));
             setIsDeletingNote(false);
             setNoteToDelete(null);
-            dispatch(showNotification('Note has been deleted. '));
+            dispatch(showNotification('Note has been deleted. ', 'success'));
         } catch (error) {
             console.error(error);
             setIsDeletingNote(false);
             setNoteToDelete(null);
+            dispatch(showNotification('An error has occurred. Please try again.', 'error'));
         }
     };
 
@@ -69,7 +70,8 @@ export default function NotesPage() {
                 }
             }) ?? null);
         } catch (error) {
-            console.error(error)
+            console.error(error);
+            dispatch(showNotification('An error has occurred. Please try again.', 'error'));
         }
     };
 

@@ -1,5 +1,4 @@
 import type {NoteResponse, NoteId, ParsedNoteResponse} from "../../types/notes.ts";
-import {sortNotes} from "../../utils/notes.ts";
 import {filterFavoriteNotes} from "../../utils/notes.ts";
 import NoteListElement from "./NoteListElement.tsx";
 
@@ -16,9 +15,8 @@ export default function NotesList({notes, onSetModalVisible, onSetFavorite}: Not
             createdAt: new Date(note.createdAt)
         }
     });
-    const sortedNotes = sortNotes(parsedNotes);
 
-    const {favoriteNotes, unfavoriteNotes} = filterFavoriteNotes(sortedNotes);
+    const {favoriteNotes, unfavoriteNotes} = filterFavoriteNotes(parsedNotes);
 
     const everyFav = notes.every(note => note.isFavorite);
 

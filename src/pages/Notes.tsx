@@ -7,8 +7,9 @@ import ErrorMessage from "../components/ui/ErrorMessage.tsx";
 import type {PaginatedNotes, NoteId} from "../types/notes.ts";
 import {api} from "../config/api.ts";
 import Modal from "../components/ui/Modal.tsx";
-import { showNotification } from "../store/slices/notification.ts";
+import {showNotification} from "../store/slices/notification.ts";
 import {useDispatch} from "react-redux";
+import {useSearchParams, Link} from "react-router-dom";
 import type {AppDispatch} from "../store/store.ts";
 
 export default function NotesPage() {
@@ -19,12 +20,16 @@ export default function NotesPage() {
     const [noteToDelete, setNoteToDelete] = useState<NoteId | null>(null);
     const [isDeletingNote, setIsDeletingNote] = useState(false);
 
+    const [params, setParams] = useSearchParams();
+    const parsedPageNumber = parseInt(params.get('page') ?? '');
+    const page = !isNaN(parsedPageNumber) ? parsedPageNumber : 1;
+
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         async function fetchNotes() {
             try {
-                const res = await api.get<PaginatedNotes>('/notes');
+                const res = await api.get<PaginatedNotes>(`/notes?page=${page}`);
                 setNotesData(res.data);
             } catch {
                 setError(true);
@@ -34,7 +39,7 @@ export default function NotesPage() {
         }
 
         fetchNotes();
-    }, []);
+    }, [page]);
 
     const handleDelete = async () => {
         if (!noteToDelete) {
@@ -115,8 +120,24 @@ export default function NotesPage() {
         <NoteButton onClick={() => navigate("/notes/new")}>
             + Add new note
         </NoteButton>
-        {notesData && <NotesList notes={notesData.notes} onSetModalVisible={handleSetModalVisible} onSetFavorite={handleSetIsFavorite}/>}
-        {!!noteToDelete && <Modal title="Are you sure?" message="Are you sure you want to delete this note?" open={!!noteToDelete} onConfirm={handleDelete}
-               onClose={handleSetModalNotVisible} isLoading={isDeletingNote}/>}
+        {notesData && <NotesList notes={notesData.notes} onSetModalVisible={handleSetModalVisible}
+                                 onSetFavorite={handleSetIsFavorite}/>}
+        {!!noteToDelete &&
+            <Modal title="Are you sure?" message="Are you sure you want to delete this note?" open={!!noteToDelete}
+                   onConfirm={handleDelete}
+                   onClose={handleSetModalNotVisible} isLoading={isDeletingNote}/>}
+        {notesData && <nav className="flex gap-x-2 mt-4 justify-center">
+            {
+                Array.from({length: notesData.totalPages}).map((_, i) => (
+                    <Link
+                        key={i}
+                        to={{
+                            pathname: `/notes`,
+                            search: `?page=${i + 1}`,
+                        }}
+                        className={`${page === i + 1 ? 'underline' : ''}`}
+                    >{i + 1}</Link>))
+            }
+        </nav>}
     </div>
 }

@@ -20,6 +20,8 @@ export default function NotesList({notes, onSetModalVisible, onSetFavorite}: Not
 
     const {favoriteNotes, unfavoriteNotes} = filterFavoriteNotes(sortedNotes);
 
+    const everyFav = notes.every(note => note.isFavorite);
+
     return <section className='grow flex flex-col'>
         {favoriteNotes.length > 0 && <>
             <ul className="flex flex-col gap-y-4 mb-3">
@@ -32,7 +34,7 @@ export default function NotesList({notes, onSetModalVisible, onSetFavorite}: Not
                     ))
                 }
             </ul>
-            <div aria-hidden="true" className="w-98/100 mx-auto mb-3 border-b border-b-stone-400" />
+            {!everyFav && <div aria-hidden="true" className="w-98/100 mx-auto mb-3 border-b border-b-stone-400" />}
         </>}
         <ul className="flex flex-col gap-y-4">
             {

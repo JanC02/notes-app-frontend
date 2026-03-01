@@ -10,3 +10,8 @@ export interface Note {
 export type NoteId = Note["id"];
 export type NoteResponse = Omit<Note, 'userId' | 'content'>;
 export type ParsedNoteResponse = Omit<NoteResponse, 'createdAt'> & { createdAt: Date };
+
+export type PaginatedNotes = {
+    notes: NoteResponse[];
+    totalPages: number;
+};

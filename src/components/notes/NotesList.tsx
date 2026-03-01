@@ -1,5 +1,4 @@
 import type {NoteResponse, NoteId, ParsedNoteResponse} from "../../types/notes.ts";
-import {sortNotes} from "../../utils/notes.ts";
 import {filterFavoriteNotes} from "../../utils/notes.ts";
 import NoteListElement from "./NoteListElement.tsx";
 
@@ -16,9 +15,10 @@ export default function NotesList({notes, onSetModalVisible, onSetFavorite}: Not
             createdAt: new Date(note.createdAt)
         }
     });
-    const sortedNotes = sortNotes(parsedNotes);
 
-    const {favoriteNotes, unfavoriteNotes} = filterFavoriteNotes(sortedNotes);
+    const {favoriteNotes, unfavoriteNotes} = filterFavoriteNotes(parsedNotes);
+
+    const everyFav = notes.every(note => note.isFavorite);
 
     return <section className='grow flex flex-col'>
         {favoriteNotes.length > 0 && <>
@@ -32,7 +32,7 @@ export default function NotesList({notes, onSetModalVisible, onSetFavorite}: Not
                     ))
                 }
             </ul>
-            <div aria-hidden="true" className="w-98/100 mx-auto mb-3 border-b border-b-stone-400" />
+            {!everyFav && <div aria-hidden="true" className="w-98/100 mx-auto mb-3 border-b border-b-stone-400" />}
         </>}
         <ul className="flex flex-col gap-y-4">
             {

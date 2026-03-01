@@ -4,28 +4,38 @@ import NoteButton from "../components/notes/NoteButton.tsx";
 import {useState, useEffect} from "react";
 import Spinner from "../components/ui/Spinner.tsx";
 import ErrorMessage from "../components/ui/ErrorMessage.tsx";
-import type {NoteResponse, NoteId} from "../types/notes.ts";
+import type {PaginatedNotes, NoteId} from "../types/notes.ts";
 import {api} from "../config/api.ts";
 import Modal from "../components/ui/Modal.tsx";
-import { showNotification } from "../store/slices/notification.ts";
+import {showNotification} from "../store/slices/notification.ts";
 import {useDispatch} from "react-redux";
+import {useSearchParams} from "react-router-dom";
 import type {AppDispatch} from "../store/store.ts";
+import PaginationInput from "../components/ui/PaginationInput.tsx";
 
 export default function NotesPage() {
     const navigate = useNavigate();
-    const [notes, setNotes] = useState<NoteResponse[] | null>(null);
+    const [notesData, setNotesData] = useState<PaginatedNotes | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
     const [noteToDelete, setNoteToDelete] = useState<NoteId | null>(null);
     const [isDeletingNote, setIsDeletingNote] = useState(false);
+
+    const [params, setParams] = useSearchParams();
+    const parsedPageNumber = parseInt(params.get('page') ?? '');
+    const page = !isNaN(parsedPageNumber) && parsedPageNumber >= 1 ? parsedPageNumber : 1;
 
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         async function fetchNotes() {
             try {
-                const res = await api.get<NoteResponse[]>('/notes');
-                setNotes(res.data);
+                const res = await api.get<PaginatedNotes>(`/notes?page=${page}`);
+                if (page > res.data.totalPages && res.data.totalPages > 0) {
+                    setParams({page: `${res.data.totalPages}`});
+                    return;
+                }
+                setNotesData(res.data);
             } catch {
                 setError(true);
             } finally {
@@ -34,7 +44,7 @@ export default function NotesPage() {
         }
 
         fetchNotes();
-    }, []);
+    }, [page]);
 
     const handleDelete = async () => {
         if (!noteToDelete) {
@@ -43,7 +53,15 @@ export default function NotesPage() {
         try {
             setIsDeletingNote(true);
             await api.delete(`/notes/${noteToDelete}`);
-            setNotes(prev => prev!.filter(note => note.id !== noteToDelete));
+            setNotesData(prev => {
+                if (!prev) {
+                    return null;
+                }
+                return {
+                    ...prev,
+                    notes: prev.notes.filter(note => note.id !== noteToDelete)
+                }
+            });
             setIsDeletingNote(false);
             setNoteToDelete(null);
             dispatch(showNotification('Note has been deleted. ', 'success'));
@@ -60,15 +78,23 @@ export default function NotesPage() {
             await api.patch(`/notes/${id}`, {
                 isFavorite,
             });
-            setNotes(prev => prev?.map(note => {
-                if (note.id !== id) {
-                    return note;
+            setNotesData(prev => {
+                if (!prev) {
+                    return null;
                 }
                 return {
-                    ...note,
-                    isFavorite: isFavorite,
+                    ...prev,
+                    notes: prev.notes.map(note => {
+                        if (note.id !== id) {
+                            return note;
+                        }
+                        return {
+                            ...note,
+                            isFavorite: isFavorite,
+                        }
+                    }),
                 }
-            }) ?? null);
+            });
         } catch (error) {
             console.error(error);
             dispatch(showNotification('An error has occurred. Please try again.', 'error'));
@@ -84,22 +110,35 @@ export default function NotesPage() {
         setIsDeletingNote(false);
     };
 
+    const handlePageChange = (page: number) => {
+        const newParams = new URLSearchParams();
+        newParams.set('page', `${page}`);
+        setParams(newParams);
+    }
+
     if (isLoading) return (
         <div className='grow flex justify-center items-center'>
             <Spinner className='text-[#404040] w-13 h-13'/>
         </div>
     );
 
-    if (error) return (
-        <ErrorMessage message="An error occurred while fetching notes. Please try again."/>
-    );
+    if (error)
+        return (
+            <ErrorMessage message="An error occurred while fetching notes. Please try again."/>
+        );
 
     return <div className="w-full grow max-w-7xl mx-auto flex flex-col">
         <NoteButton onClick={() => navigate("/notes/new")}>
             + Add new note
         </NoteButton>
-        <NotesList notes={notes!} onSetModalVisible={handleSetModalVisible} onSetFavorite={handleSetIsFavorite}/>
-        {!!noteToDelete && <Modal title="Are you sure?" message="Are you sure you want to delete this note?" open={!!noteToDelete} onConfirm={handleDelete}
-               onClose={handleSetModalNotVisible} isLoading={isDeletingNote}/>}
+        {notesData && <NotesList notes={notesData.notes} onSetModalVisible={handleSetModalVisible}
+                                 onSetFavorite={handleSetIsFavorite}/>}
+        {!!noteToDelete &&
+            <Modal title="Are you sure?" message="Are you sure you want to delete this note?" open={!!noteToDelete}
+                   onConfirm={handleDelete}
+                   onClose={handleSetModalNotVisible} isLoading={isDeletingNote}/>}
+        {notesData && <nav className="flex gap-x-2 mt-4 justify-center">
+            <PaginationInput page={page} maxPage={notesData.totalPages} onPageChange={handlePageChange} />
+        </nav>}
     </div>
 }

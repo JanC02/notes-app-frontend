@@ -4,6 +4,7 @@ import { register } from "../store/slices/auth";
 import { type AppDispatch } from "../store/store";
 import { useNavigate } from "react-router-dom";
 import AuthPagesContainer from "../components/AuthPagesContainer";
+import { showNotification } from "../store/slices/notification.ts";
 
 export default function RegisterPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -14,6 +15,7 @@ export default function RegisterPage() {
 
         if (register.fulfilled.match(resultAction)) {
             navigate('/login');
+            dispatch(showNotification("An account has been created. You can now log in.", "success"));
         }
     };
 

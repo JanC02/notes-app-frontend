@@ -5,6 +5,9 @@ import { useSelector } from "react-redux";
 import Spinner from "./ui/Spinner";
 import { validateEmail, validatePassword} from "../utils/auth";
 import { Link } from "react-router-dom";
+import { clearError } from "../store/slices/auth.ts";
+import { useDispatch } from "react-redux";
+import { type AppDispatch } from "../store/store";
 
 interface AuthFormProps {
     submitFunction: (email: string, password: string) => void;
@@ -39,6 +42,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
 
     const isLoading = useSelector((state: RootState) => state.auth.isLoading);
     const error = useSelector((state: RootState) => state.auth.error);
+    const dispatch = useDispatch<AppDispatch>();
 
     return <form onSubmit={handleSubmit} className="rounded-md shadow-lg w-md m-6 p-8 bg-[#f7f7f7] text-stone-900 flex flex-col">
         <h1 className="text-2xl font-medium mb-8">{formTitle}</h1>
@@ -64,7 +68,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
             <span className="mr-1">
                 {isRegistration ? "Already have an account?" : "Don't have an account?"}
             </span>
-            <Link to={`${isRegistration ? "/login" : "/register"}`} className="underline">
+            <Link to={`${isRegistration ? "/login" : "/register"}`} className="underline" onClick={() => dispatch(clearError())}>
                 {isRegistration ? "Log in" : "Sign up"}
             </Link>
         </div>

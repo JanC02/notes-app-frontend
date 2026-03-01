@@ -32,7 +32,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        if (!isRegistration || (!emailError && !passwordError)) {
+        if (!emailError && !passwordError) {
             submitFunction(emailValue, passwordValue);
         }
     };

@@ -23,7 +23,7 @@ export default function NotesPage() {
 
     const [params, setParams] = useSearchParams();
     const parsedPageNumber = parseInt(params.get('page') ?? '');
-    const page = !isNaN(parsedPageNumber) ? parsedPageNumber : 1;
+    const page = !isNaN(parsedPageNumber) && parsedPageNumber >= 1 ? parsedPageNumber : 1;
 
     const dispatch = useDispatch<AppDispatch>();
 
@@ -31,6 +31,10 @@ export default function NotesPage() {
         async function fetchNotes() {
             try {
                 const res = await api.get<PaginatedNotes>(`/notes?page=${page}`);
+                if (page > res.data.totalPages && res.data.totalPages > 0) {
+                    setParams({page: `${res.data.totalPages}`});
+                    return;
+                }
                 setNotesData(res.data);
             } catch {
                 setError(true);

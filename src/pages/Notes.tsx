@@ -137,7 +137,7 @@ export default function NotesPage() {
             <Modal title="Are you sure?" message="Are you sure you want to delete this note?" open={!!noteToDelete}
                    onConfirm={handleDelete}
                    onClose={handleSetModalNotVisible} isLoading={isDeletingNote}/>}
-        {notesData && <nav className="flex gap-x-2 mt-4 justify-center">
+        {(notesData && notesData.notes.length > 0)  && <nav className="flex gap-x-2 mt-4 justify-center">
             <PaginationInput page={page} maxPage={notesData.totalPages} onPageChange={handlePageChange} />
         </nav>}
     </div>

@@ -33,7 +33,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
         error: contentError,
         handleChange: handleContentChange,
         handleTouch: handleContentTouch,
-    } = useInput<string>((value: string) => validateLength(value, 5, 1000), note?.content || "");
+    } = useInput<string>((value: string) => validateLength(value, 5, 10000), note?.content || "");
 
     const handleSubmit= async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();

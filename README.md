@@ -1,73 +1,94 @@
-# React + TypeScript + Vite
+# Notes App — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web application for managing notes with a built-in Markdown editor. Allows creating, editing, deleting, and bookmarking notes as favorites. The frontend communicates with a REST API (separate backend service).
 
-Currently, two official plugins are available:
+## Tech stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** + **TypeScript 5.9**
+- **Vite 7** — bundler and dev server
+- **React Router 7** — routing (with data loaders)
+- **Redux Toolkit** + **React Redux** — state management (authentication, notifications)
+- **Axios** — API communication (interceptors, automatic token refresh)
+- **Tailwind CSS 4** — styling
+- **@uiw/react-md-editor** — Markdown editor for note content
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Authentication** — registration, login, logout with JWT support (access + refresh tokens)
+- **Automatic token refresh** — Axios interceptor with a queue mechanism to prevent race conditions
+- **Session verification** — token validity check on application startup
+- **Protected routes** — unauthenticated users are redirected to the login page
+- **Notes CRUD** — create, read, update, and delete notes
+- **Markdown editor** — live preview while editing note content
+- **Favorite notes** — star toggle, favorites displayed at the top of the list
+- **Pagination** — page navigation with page number stored in the URL (`?page=X`)
+- **Confirmation modals** — native `<dialog>` for note deletion and leaving the form with unsaved changes
+- **Notification system** — toasts (success/error) with auto-dismiss after 3 seconds
+- **Form validation** — email, password, title (5–255 chars), and note content (5–10,000 chars)
+- **Responsive design** — layout adapts to mobile and desktop devices
 
-## Expanding the ESLint configuration
+## Requirements
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Node.js** (>=18)
+- **Backend API** running and accessible (defaults to `http://localhost:3000`)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/JanC02/notes-app-frontend.git
+   cd notes-app-frontend
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the project root:
+   ```
+   VITE_API_URL=http://localhost:3000
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Project structure
+
+```
+src/
+├── assets/fonts/        # Self-hosted font (Reddit Sans)
+├── components/
+│   ├── notes/           # Note-related components (list, form, layout)
+│   └── ui/              # UI components (Modal, Spinner, Notifications, Pagination)
+├── config/
+│   └── api.ts           # Axios instance with interceptors
+├── hooks/
+│   └── useInput.ts      # Generic form field validation hook
+├── loaders/
+│   └── noteLoader.ts    # React Router loader (prefetches note data)
+├── pages/               # Pages (Login, Register, Notes, NewNote, EditNote)
+├── store/
+│   └── slices/          # Redux slices (auth, notification)
+├── types/               # TypeScript types (API responses, Note)
+├── utils/               # Helper functions (validation, note filtering)
+├── App.tsx              # Root component with Outlet and Notifications
+├── router.tsx           # Route configuration
+├── main.tsx             # Entry point (Provider, AuthProvider, RouterProvider)
+└── index.css            # Tailwind, custom font, animations
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | TypeScript compilation + production build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Lint the codebase (ESLint) |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Planned features
+
+- [ ] Export notes to PDF

@@ -9,8 +9,9 @@ import {api} from "../config/api.ts";
 import Modal from "../components/ui/Modal.tsx";
 import {showNotification} from "../store/slices/notification.ts";
 import {useDispatch} from "react-redux";
-import {useSearchParams, Link} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 import type {AppDispatch} from "../store/store.ts";
+import PaginationInput from "../components/ui/PaginationInput.tsx";
 
 export default function NotesPage() {
     const navigate = useNavigate();
@@ -105,6 +106,12 @@ export default function NotesPage() {
         setIsDeletingNote(false);
     };
 
+    const handlePageChange = (page: number) => {
+        const newParams = new URLSearchParams();
+        newParams.set('page', `${page}`);
+        setParams(newParams);
+    }
+
     if (isLoading) return (
         <div className='grow flex justify-center items-center'>
             <Spinner className='text-[#404040] w-13 h-13'/>
@@ -127,17 +134,7 @@ export default function NotesPage() {
                    onConfirm={handleDelete}
                    onClose={handleSetModalNotVisible} isLoading={isDeletingNote}/>}
         {notesData && <nav className="flex gap-x-2 mt-4 justify-center">
-            {
-                Array.from({length: notesData.totalPages}).map((_, i) => (
-                    <Link
-                        key={i}
-                        to={{
-                            pathname: `/notes`,
-                            search: `?page=${i + 1}`,
-                        }}
-                        className={`${page === i + 1 ? 'underline' : ''}`}
-                    >{i + 1}</Link>))
-            }
+            <PaginationInput page={page} maxPage={notesData.totalPages} onPageChange={handlePageChange} />
         </nav>}
     </div>
 }

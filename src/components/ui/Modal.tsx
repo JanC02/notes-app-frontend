@@ -39,8 +39,8 @@ export default function Modal({ open, onClose, onConfirm, title, message, isLoad
                     <button onClick={onClose} className='cursor-pointer'>
                         Cancel
                     </button>
-                    <NoteButton onClick={onConfirm} className='mb-0! px-3! flex gap-x-2' disabled={isLoading}>
-                        { isLoading && <Spinner className='w-4 h-4 text-stone-100 mr-2' />}
+                    <NoteButton onClick={onConfirm} className='mb-0! px-3! flex items-center gap-x-1' disabled={isLoading}>
+                        { isLoading && <Spinner className='w-4 h-4 text-stone-100' />}
                         OK
                     </NoteButton>
                 </div>

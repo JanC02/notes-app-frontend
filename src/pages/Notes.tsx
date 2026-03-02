@@ -62,6 +62,11 @@ export default function NotesPage() {
                     notes: prev.notes.filter(note => note.id !== noteToDelete)
                 }
             });
+
+            if (notesData?.notes && notesData?.notes.length - 1 === 0 && page > 1) {
+                navigate(`/notes?page=${page - 1}`);
+            }
+
             setIsDeletingNote(false);
             setNoteToDelete(null);
             dispatch(showNotification('Note has been deleted. ', 'success'));

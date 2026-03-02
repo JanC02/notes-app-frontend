@@ -68,7 +68,7 @@ export default function NotesPage() {
             }
 
             setIsDeletingNote(false);
-            setNoteToDelete(null);2
+            setNoteToDelete(null);
             dispatch(showNotification('Note has been deleted. ', 'success'));
         } catch (error) {
             console.error(error);

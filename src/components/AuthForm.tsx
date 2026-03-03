@@ -55,7 +55,7 @@ export default function AuthForm({ submitFunction, formTitle, buttonText, active
             <div className="flex flex-col gap-y-3">
                 <label htmlFor="password">Password:</label>
                 <input className={`h-10 rounded-md bg-[#f7f7f7] p-4 border ${isRegistration && passwordError ? 'border-red-500' : 'border-stone-700/60'}`} autoComplete="on" id="password" type="password" name="password" value={passwordValue} onChange={(e: ChangeEvent<HTMLInputElement>) => handlePasswordChange(e.currentTarget.value)} onBlur={handlePasswordTouch} required />
-                    { isRegistration && passwordError && <span className="text-red-500">Invalid password</span> }
+                    { isRegistration && passwordError && <span className="text-red-500">Password must have at least 8 characters</span> }
             </div>
             { error &&  <div className="flex flex-col gap-y-3">
                 <p className="text-red-500">{error}</p>

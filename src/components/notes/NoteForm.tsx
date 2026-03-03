@@ -26,14 +26,14 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
         error: titleError,
         handleChange: handleTitleChange,
         handleTouch: handleTitleTouch,
-    } = useInput<string>((value: string) => validateLength(value, 5, 255), note?.title || "");
+    } = useInput<string>((value: string) => validateLength(value, 1, 255), note?.title || "");
 
     const {
         value: contentValue,
         error: contentError,
         handleChange: handleContentChange,
         handleTouch: handleContentTouch,
-    } = useInput<string>((value: string) => validateLength(value, 5, 10000), note?.content || "");
+    } = useInput<string>((value: string) => validateLength(value, 1, 10000), note?.content || "");
 
     const handleSubmit= async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();

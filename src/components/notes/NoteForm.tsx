@@ -7,6 +7,7 @@ import NoteButton from "./NoteButton.tsx";
 import { api } from "../../config/api.ts";
 import { useState } from "react";
 import Modal from "../ui/Modal.tsx";
+import { useSearchParams } from "react-router-dom";
 import type { Note } from "../../types/notes.ts";
 import type { ChangeEvent, SyntheticEvent } from "react";
 
@@ -20,6 +21,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [params] = useSearchParams();
 
     const {
         value: titleValue,
@@ -75,7 +77,14 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
 
     const handleConfirm = () => {
         setIsModalVisible(false);
-        navigate('/notes');
+
+        const page = params.get('page');
+
+        if (page) {
+            navigate(`/notes?page=${page}`);
+        } else {
+            navigate(`/notes`);
+        }
     };
 
     const handleCancel = () => {

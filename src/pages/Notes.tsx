@@ -133,7 +133,7 @@ export default function NotesPage() {
         );
 
     return <div className="w-full grow max-w-7xl mx-auto flex flex-col">
-        <NoteButton onClick={() => navigate("/notes/new")}>
+        <NoteButton onClick={() => navigate(`/notes/new${page > 1? `?page=${page}` : ""}`)}>
             + Add new note
         </NoteButton>
         {notesData && <NotesList notes={notesData.notes} onSetModalVisible={handleSetModalVisible}

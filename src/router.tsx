@@ -10,11 +10,13 @@ import NotesLayout from "./components/notes/NotesLayout.tsx";
 import NewNote from "./pages/NewNote.tsx";
 import EditNote from "./pages/EditNote.tsx";
 import { noteLoader } from "./loaders/noteLoader.ts";
+import NotFound from "./pages/NotFound.tsx";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: <App />,
+        errorElement: <NotFound />,
         children: [
             {
                 index: true,

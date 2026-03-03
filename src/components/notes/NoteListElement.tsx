@@ -16,7 +16,7 @@ export default function NoteListElement({ id, title, createdAt, isFavorite, onSe
     const navigate = useNavigate();
 
     const clickHandler = () => {
-        navigate(`/notes/new${page > 1 ? `?page=${page}` : ""}`);
+        navigate(`/notes/${id}${page > 1? `?page=${page}` : ""}`);
     }
 
     const deleteHandler = (e: MouseEvent) => {

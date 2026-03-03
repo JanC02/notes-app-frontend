@@ -9,13 +9,14 @@ interface NoteListElementProps {
     isFavorite: boolean;
     onSetModalVisible: (id: NoteId) => void;
     onSetFavorite: (id: NoteId, isFavorite: boolean) => Promise<void>;
+    page: number;
 }
 
-export default function NoteListElement({ id, title, createdAt, isFavorite, onSetModalVisible, onSetFavorite }: NoteListElementProps) {
+export default function NoteListElement({ id, title, createdAt, isFavorite, onSetModalVisible, onSetFavorite, page }: NoteListElementProps) {
     const navigate = useNavigate();
 
     const clickHandler = () => {
-        navigate(`/notes/${id}`);
+        navigate(`/notes/new${page > 1 ? `?page=${page}` : ""}`);
     }
 
     const deleteHandler = (e: MouseEvent) => {

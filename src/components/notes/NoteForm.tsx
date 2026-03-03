@@ -8,6 +8,7 @@ import { api } from "../../config/api.ts";
 import { useState } from "react";
 import Modal from "../ui/Modal.tsx";
 import { useSearchParams } from "react-router-dom";
+import { exportNoteToPdf } from "../../utils/notes.ts";
 import type { Note } from "../../types/notes.ts";
 import type { ChangeEvent, SyntheticEvent } from "react";
 
@@ -92,9 +93,15 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     }
 
     return <div className="flex flex-col grow">
-        <NoteButton onClick={goBackHandler}>
-            {`Go back`}
-        </NoteButton>
+        <div className="flex justify-between">
+            <NoteButton onClick={goBackHandler}>
+                {`Go back`}
+            </NoteButton>
+            <button onClick={() => {exportNoteToPdf(titleValue, contentValue)}}>
+                export pdf
+            </button>
+        </div>
+
         <form className="flex flex-col grow" onSubmit={handleSubmit}>
             <div className={`flex flex-col gap-y-3 ${!titleError && "mb-3"}`}>
                 <label htmlFor="note-title">

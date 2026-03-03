@@ -66,7 +66,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     if (error) {
         bottomErrorText = error;
     } else if (contentError) {
-        bottomErrorText = "Note content must be between 5 and 10000 characters";
+        bottomErrorText = "Note content must be between 1 and 10000 characters";
     }
 
     const goBackHandler = () => {
@@ -95,7 +95,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
                        onChange={(e: ChangeEvent<HTMLInputElement>) => handleTitleChange(e.target.value)}
                        onBlur={handleTitleTouch}
                 />
-                <span className={`text-red-500 mb-3 ${titleError ? 'block' : 'hidden'}`}>Title must be between 5 and 255 characters.</span>
+                <span className={`text-red-500 mb-3 ${titleError ? 'block' : 'hidden'}`}>Title must be between 1 and 255 characters.</span>
             </div>
             <MDEditor
                 value={contentValue}

@@ -34,15 +34,23 @@ export async function exportNoteToPdf(title: string, content: string) {
         .use(rehypeStringify)
         .process(content);
 
-    const html = `<div class="wmde-markdown">${String(result)}</div>`;
+    const html = `<div class="wmde-markdown" style="padding: 16px;">${String(result)}</div>`;
 
-    await html2pdf()
-        .set({
-            filename: `${title}.pdf`,
-            margin: 10,
-            image: { type: "jpeg", quality: 0.98 },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        })
-        .from(html)
-        .save();
+    const style = document.createElement("style");
+    style.textContent = "img { display: inline-block !important; }";
+    document.head.appendChild(style);
+
+    try {
+        await html2pdf()
+            .set({
+                filename: `${title}.pdf`,
+                margin: 10,
+                image: { type: "jpeg", quality: 0.98 },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            })
+            .from(html)
+            .save();
+    } finally {
+        style.remove();
+    }
 }

@@ -22,6 +22,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [params] = useSearchParams();
 
     const {
@@ -97,9 +98,17 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
             <NoteButton onClick={goBackHandler}>
                 {`Go back`}
             </NoteButton>
-            <button onClick={() => {exportNoteToPdf(titleValue, contentValue)}}>
-                export pdf
-            </button>
+            <NoteButton className=" flex gap-x-1 items-center" disabled={isExporting} onClick={async () => {
+                setIsExporting(true);
+                try {
+                    await exportNoteToPdf(titleValue, contentValue);
+                } finally {
+                    setIsExporting(false);
+                }
+            }}>
+                {isExporting && <Spinner className="text-stone-100 w-4 h-4" />}
+                Export PDF
+            </NoteButton>
         </div>
 
         <form className="flex flex-col grow" onSubmit={handleSubmit}>

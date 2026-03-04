@@ -8,6 +8,7 @@ import { api } from "../../config/api.ts";
 import { useState } from "react";
 import Modal from "../ui/Modal.tsx";
 import { useSearchParams } from "react-router-dom";
+import { exportNoteToPdf } from "../../utils/notes.ts";
 import type { Note } from "../../types/notes.ts";
 import type { ChangeEvent, SyntheticEvent } from "react";
 
@@ -21,6 +22,7 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [params] = useSearchParams();
 
     const {
@@ -92,9 +94,23 @@ export default function NoteForm({ note, isEditing }: NoteFormProps) {
     }
 
     return <div className="flex flex-col grow">
-        <NoteButton onClick={goBackHandler}>
-            {`Go back`}
-        </NoteButton>
+        <div className="flex justify-between">
+            <NoteButton onClick={goBackHandler}>
+                {`Go back`}
+            </NoteButton>
+            <NoteButton className=" flex gap-x-1 items-center" disabled={isExporting} onClick={async () => {
+                setIsExporting(true);
+                try {
+                    await exportNoteToPdf(titleValue, contentValue);
+                } finally {
+                    setIsExporting(false);
+                }
+            }}>
+                {isExporting && <Spinner className="text-stone-100 w-4 h-4" />}
+                Export PDF
+            </NoteButton>
+        </div>
+
         <form className="flex flex-col grow" onSubmit={handleSubmit}>
             <div className={`flex flex-col gap-y-3 ${!titleError && "mb-3"}`}>
                 <label htmlFor="note-title">

@@ -24,6 +24,7 @@
     dialog {
         margin: auto;
     }
+
 }
 
 @theme {
@@ -60,3 +61,5 @@
 .wmde-markdown li > ol {
     margin: 0.25rem 0;
 }
+
+

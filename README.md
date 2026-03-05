@@ -26,6 +26,7 @@ A web application for managing notes with a built-in Markdown editor. Allows cre
 - **Notification system** — toasts (success/error) with auto-dismiss after 3 seconds
 - **Form validation** — email, password, title (5–255 chars), and note content (5–10,000 chars)
 - **Responsive design** — layout adapts to mobile and desktop devices
+- **PDF export** — export notes to PDF with Markdown styling preserved (html2pdf.js)
 
 ## Requirements
 
@@ -91,4 +92,4 @@ src/
 
 ## Planned features
 
-- [ ] Export notes to PDF
+- [x] Export notes to PDF

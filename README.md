@@ -31,30 +31,38 @@ A web application for managing notes with a built-in Markdown editor. Allows cre
 ## Requirements
 
 - **Node.js** (>=18)
-- **Backend API** running and accessible (defaults to `http://localhost:3000`)
+- **Backend API** running and accessible on the same Docker network (service name `notes-app-backend`, port `3000`)
 
-## Installation
+This app is checked out as a subdirectory of [notes-app-infra](../README.md) (a separate git repository) and is normally run via Docker Compose from that repository's root, not standalone.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/JanC02/notes-app-frontend.git
-   cd notes-app-frontend
-   ```
+## Running via Docker (recommended)
 
-2. Install dependencies:
+From the repository root:
+
+```bash
+docker compose up --build            # dev: Vite dev server on :5173, hot reload
+docker compose -f docker-compose.prod.yml up -d --build   # prod: Nginx on :80
+```
+
+The Axios client uses a relative `baseURL: '/api'` ([src/config/api.ts](src/config/api.ts)) — there is no `VITE_API_URL` env variable anymore, and no `.env` file is needed for this service (no `.env.example` is provided on purpose). Requests to `/api/*` are proxied to the backend:
+
+- **Dev**: Vite's dev-server proxy (`vite.config.ts`) forwards `/api` to `http://notes-app-backend:3000`.
+- **Prod**: Nginx (`nginx.conf`) forwards `/api/` to `http://notes-app-backend:3000`, and serves the built static files with HTTP Basic Auth (`.htpasswd`) in front of everything else.
+
+Because both proxy targets rely on Docker's internal DNS (service names), the frontend container must be on the same Compose network as the backend — running `npm run dev` outside Docker will not reach the backend unless you adjust the proxy target to `localhost`.
+
+## Manual installation (outside Docker)
+
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Create a `.env` file in the project root:
-   ```
-   VITE_API_URL=http://localhost:3000
-   ```
-
-4. Start the development server:
+2. Start the development server:
    ```bash
    npm run dev
    ```
+   Since the backend isn't reachable via the Docker service name outside a container, update the proxy target in `vite.config.ts` to `http://localhost:3000` (or wherever your backend is listening) for this to work.
 
 ## Project structure
 

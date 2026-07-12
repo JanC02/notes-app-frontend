@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:24-alpine as dev
 
 WORKDIR /app
 
@@ -8,4 +8,32 @@ RUN npm install
 
 COPY . .
 
+EXPOSE 5173
+
 CMD ["npm", "run", "dev"]
+
+
+
+FROM node:24-alpine as build
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+
+
+FROM nginx:alpine as prod
+
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY .htpasswd /etc/nginx/.htpasswd
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

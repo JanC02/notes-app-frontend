@@ -7,10 +7,13 @@ export interface AuthResponse {
 
 export interface RefreshResponse {
     accessToken: string;
-    refreshToken: string;
 };
 
 export interface VerifyTokenResponse {
-  id: AuthResponse['id'];
-  email: AuthResponse['email'];
-}
+  id: number;
+  email: string;
+};
+
+export interface TokenStorage {
+    accessToken: string | null;
+};

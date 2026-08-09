@@ -26,7 +26,7 @@ const initialState: AuthState = {
     isAuthenticated: false,
     isLoading: false,
     error: '',
-    isSessionVerificationPending: false
+    isSessionVerificationPending: true
 }
 
 const auth = createSlice({

@@ -10,7 +10,7 @@ interface ProtectedRouterProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouterProps) {
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-    const isTokenVerificationPending = useSelector((state: RootState) => state.auth.isTokenVerificationPending);
+    const isTokenVerificationPending = useSelector((state: RootState) => state.auth.isSessionVerificationPending);
 
     if (isTokenVerificationPending) {
         return <div className="min-h-dvh flex justify-center items-center">

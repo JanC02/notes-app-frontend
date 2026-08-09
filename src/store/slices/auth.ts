@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import { api } from "../../config/api";
-import type { AuthResponse, VerifyTokenResponse } from "../../types/api";
+import type { AuthResponse } from "../../types/api";
 import axios from "axios";
 
 interface User {
@@ -18,15 +18,15 @@ interface AuthState {
     isAuthenticated: boolean;
     isLoading: boolean;
     error: string;
-    isTokenVerificationPending: boolean;
+    isSessionVerificationPending: boolean;
 };
 
 const initialState: AuthState = {
-    user: JSON.parse(localStorage.getItem('user') || 'null'),
-    isAuthenticated: !!localStorage.getItem('accessToken'),
+    user: null,
+    isAuthenticated: false,
     isLoading: false,
     error: '',
-    isTokenVerificationPending: false
+    isSessionVerificationPending: false
 }
 
 const auth = createSlice({
@@ -78,23 +78,26 @@ const auth = createSlice({
                     state.isAuthenticated = false;
                     state.isLoading = false;
                     state.error = '';
-
-                    localStorage.clear();
                 }
             })
-            .addCase(verifyToken.pending, (state) => {
-                state.isTokenVerificationPending = true;
+            .addCase(verifySession.pending, (state) => {
+                state.isSessionVerificationPending = true;
             })
-            .addCase(verifyToken.fulfilled, (state) => {
-                state.isTokenVerificationPending = false;
+            .addCase(verifySession.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
+                state.isSessionVerificationPending = false;
+                state.isAuthenticated = true;
+                state.isLoading = false;
+                state.user = {
+                    id: action.payload.id,
+                    email: action.payload.email
+                }
             })
-            .addCase(verifyToken.rejected, (state) => {
+            .addCase(verifySession.rejected, (state) => {
                 state.user = null;
                 state.isAuthenticated = false;
                 state.isLoading = false;
                 state.error = '';
-                state.isTokenVerificationPending = false;
-                localStorage.clear();
+                state.isSessionVerificationPending = false;
             })
     }
 });
@@ -104,11 +107,6 @@ export const login = createAsyncThunk(
     async (credentials: UserCredentials, { rejectWithValue }) => {
         try {
             const response = await api.post<AuthResponse>('/auth/login', credentials);
-
-            localStorage.setItem('user', JSON.stringify(response.data));
-            localStorage.setItem('accessToken', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
-
             return response.data;
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
@@ -138,11 +136,7 @@ export const logout = createAsyncThunk(
     'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
-            await api.post('/auth/logout', {
-                refreshToken: localStorage.getItem('refreshToken')
-            });
-
-            localStorage.clear();
+            await api.post('/auth/logout');
         } catch (error) {
             if (axios.isAxiosError(error) && error.response?.status === 400) {
                 return rejectWithValue(error.response.data.message);
@@ -152,10 +146,10 @@ export const logout = createAsyncThunk(
     }
 );
 
-export const verifyToken = createAsyncThunk(
+export const verifySession = createAsyncThunk(
     'auth/verifyToken',
     async () => {
-        const response = await api.get<VerifyTokenResponse>('/users/me');
+        const response = await api.get<AuthResponse>('/users/me');
         return response.data;
     }
 );

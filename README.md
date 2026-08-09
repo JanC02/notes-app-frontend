@@ -1,103 +1,158 @@
 # Notes App — Frontend
 
-A web application for managing notes with a built-in Markdown editor. Allows creating, editing, deleting, and bookmarking notes as favorites. The frontend communicates with a REST API (separate backend service).
+A React application for managing Markdown notes. It supports creating, editing, deleting, favoriting, and exporting notes while using the separate Notes App backend for persistence and authentication.
 
 ## Tech stack
 
-- **React 19** + **TypeScript 5.9**
-- **Vite 7** — bundler and dev server
-- **React Router 7** — routing (with data loaders)
-- **Redux Toolkit** + **React Redux** — state management (authentication, notifications)
-- **Axios** — API communication (interceptors, automatic token refresh)
-- **Tailwind CSS 4** — styling
-- **@uiw/react-md-editor** — Markdown editor for note content
+- **UI:** React 19 + TypeScript 5.9
+- **Build tooling:** Vite 7
+- **Routing:** React Router 7 with nested routes and a data loader
+- **State management:** Redux Toolkit + React Redux
+- **API client:** Axios using its Fetch adapter
+- **Styling:** Tailwind CSS 4
+- **Markdown editor:** @uiw/react-md-editor
+- **PDF export:** html2pdf.js
+
+Redux is intentionally used as part of the project's educational scope to manage authentication and notification state.
 
 ## Features
 
-- **Authentication** — registration, login, logout with JWT support (access + refresh tokens)
-- **Automatic token refresh** — Axios interceptor with a queue mechanism to prevent race conditions
-- **Session verification** — token validity check on application startup
-- **Protected routes** — unauthenticated users are redirected to the login page
-- **Notes CRUD** — create, read, update, and delete notes
-- **Markdown editor** — live preview while editing note content
-- **Favorite notes** — star toggle, favorites displayed at the top of the list
-- **Pagination** — page navigation with page number stored in the URL (`?page=X`)
-- **Confirmation modals** — native `<dialog>` for note deletion and leaving the form with unsaved changes
-- **Notification system** — toasts (success/error) with auto-dismiss after 3 seconds
-- **Form validation** — email, password, title (5–255 chars), and note content (5–10,000 chars)
-- **Responsive design** — layout adapts to mobile and desktop devices
-- **PDF export** — export notes to PDF with Markdown styling preserved (html2pdf.js)
+- Registration, login, logout, and session restoration
+- Protected and public-only routes
+- Full notes CRUD
+- Markdown editing with live preview
+- Favorite notes displayed before regular notes
+- Pagination stored in the URL as `?page=X`
+- Confirmation dialogs for note deletion and unsaved changes
+- Toast notifications with automatic dismissal
+- Client-side form validation
+- Responsive layout
+- PDF export with rendered Markdown
+- Loading indicator while the initial session is being verified
 
-## Requirements
+## Authentication
 
-- **Node.js** (>=18)
-- **Backend API** running and accessible on the same Docker network (service name `notes-app-backend`, port `3000`)
+The current version uses a classic server-side session. The browser stores the opaque session identifier in an HTTP-only cookie set by the backend. The frontend neither reads nor stores the identifier and does not manage access or refresh tokens.
 
-This app is checked out as a subdirectory of [notes-app-infra](../README.md) (a separate git repository) and is normally run via Docker Compose from that repository's root, not standalone.
+The Axios instance uses a relative `/api` base URL and enables credentials for every request. Redux stores only the authenticated user's public data and the UI state related to authentication.
 
-## Running via Docker (recommended)
+### Application startup
 
-From the repository root:
+1. The authentication state starts with session verification marked as pending.
+2. `AuthProvider` requests `GET /users/me` when the application mounts.
+3. The router is hidden behind a loading indicator until that request finishes.
+4. A successful response restores the user in Redux.
+5. A rejected response marks the user as unauthenticated and allows the public routes to render.
 
-```bash
-docker compose up --build            # dev: Vite dev server on :5173, hot reload
-docker compose -f docker-compose.prod.yml up -d --build   # prod: Nginx on :80
+`ProtectedRoute` redirects unauthenticated users to `/login`. `UnprotectedRoute` redirects authenticated users away from the login and registration pages to `/notes`.
+
+Logout asks the backend to revoke the session and then clears the local authentication state. The local state is also cleared if the request fails, so the user can leave the authenticated UI even during a network or server error. Because the cookie is HTTP-only, only a successful backend response can clear it in the browser and guarantee server-side session revocation.
+
+## Why sessions instead of JWT
+
+JWT authentication was implemented earlier as an educational exercise and remains available on the `feature/jwt-auth` branch. That version keeps the access token in memory, stores the refresh token in an HTTP-only cookie, rotates refresh tokens, and coordinates failed requests through Axios interceptors.
+
+The implementation was useful for learning token refresh, rotation, reuse detection, and concurrent-request handling. It also introduced significantly more client-side state and coordination than an application of this scale needs. The current version therefore uses server-side sessions, leaving session lifecycle and revocation to the backend and keeping the frontend focused on application state and UI behavior.
+
+## API communication
+
+The Axios client is configured in [`src/config/api.ts`](src/config/api.ts):
+
+```ts
+export const api = axios.create({
+    baseURL: '/api',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    adapter: 'fetch',
+    withCredentials: true
+});
 ```
 
-The Axios client uses a relative `baseURL: '/api'` ([src/config/api.ts](src/config/api.ts)) — there is no `VITE_API_URL` env variable anymore, and no `.env` file is needed for this service (no `.env.example` is provided on purpose). Requests to `/api/*` are proxied to the backend:
+No frontend environment variables are required. Requests use the same origin as the application and are forwarded to the backend by the development or production proxy:
 
-- **Dev**: Vite's dev-server proxy (`vite.config.ts`) forwards `/api` to `http://notes-app-backend:3000`.
-- **Prod**: Nginx (`nginx.conf`) forwards `/api/` to `http://notes-app-backend:3000`, and serves the built static files with HTTP Basic Auth (`.htpasswd`) in front of everything else.
+- **Development:** Vite rewrites `/api/*` and forwards it to `http://notes-app-backend:3000/*`.
+- **Production:** Nginx forwards `/api/*` to the backend and serves the compiled single-page application.
 
-Because both proxy targets rely on Docker's internal DNS (service names), the frontend container must be on the same Compose network as the backend — running `npm run dev` outside Docker will not reach the backend unless you adjust the proxy target to `localhost`.
+This same-origin setup allows the browser to use the session cookie without exposing the backend directly or requiring frontend CORS configuration.
 
-## Manual installation (outside Docker)
+## Routes
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   Since the backend isn't reachable via the Docker service name outside a container, update the proxy target in `vite.config.ts` to `http://localhost:3000` (or wherever your backend is listening) for this to work.
+| Path | Access | Description |
+|---|---|---|
+| `/` | Any | Redirect to `/notes` |
+| `/login` | Unauthenticated | Login form |
+| `/register` | Unauthenticated | Registration form |
+| `/notes` | Authenticated | Paginated notes list |
+| `/notes/new` | Authenticated | Create a note |
+| `/notes/:id` | Authenticated | Edit a note; data loaded with React Router |
+| Any unmatched path | Any | Not-found page |
 
 ## Project structure
 
-```
+```text
 src/
-├── assets/fonts/        # Self-hosted font (Reddit Sans)
-├── components/
-│   ├── notes/           # Note-related components (list, form, layout)
-│   └── ui/              # UI components (Modal, Spinner, Notifications, Pagination)
-├── config/
-│   └── api.ts           # Axios instance with interceptors
-├── hooks/
-│   └── useInput.ts      # Generic form field validation hook
-├── loaders/
-│   └── noteLoader.ts    # React Router loader (prefetches note data)
-├── pages/               # Pages (Login, Register, Notes, NewNote, EditNote)
-├── store/
-│   └── slices/          # Redux slices (auth, notification)
-├── types/               # TypeScript types (API responses, Note)
-├── utils/               # Helper functions (validation, note filtering)
-├── App.tsx              # Root component with Outlet and Notifications
-├── router.tsx           # Route configuration
-├── main.tsx             # Entry point (Provider, AuthProvider, RouterProvider)
-└── index.css            # Tailwind, custom font, animations
+  assets/fonts/                  # Self-hosted Reddit Sans fonts
+  components/
+    AuthForm.tsx                 # Shared login and registration form
+    AuthProvider.tsx             # Initial session restoration
+    ProtectedRoute.tsx           # Authenticated-route guard
+    UnprotectedRoute.tsx         # Public-only route guard
+    notes/                       # Notes list, form, and layout components
+    ui/                          # Reusable dialogs, notifications, inputs, and icons
+  config/
+    api.ts                       # Credentialed Axios instance
+  hooks/
+    useInput.ts                  # Form-input state and validation
+  loaders/
+    noteLoader.ts                # React Router note loader
+  pages/                         # Route-level page components
+  store/
+    slices/auth.ts               # Authentication state and async actions
+    slices/notification.ts       # Notification state
+    store.ts                     # Redux store configuration
+  types/                         # API and note types
+  utils/                         # Authentication and note helpers
+  App.tsx                        # Root layout and router outlet
+  main.tsx                       # React, Redux, auth, and router providers
+  router.tsx                     # Route definitions
+  index.css                      # Tailwind setup and global styles
 ```
+
+## Running with Docker Compose
+
+This repository is normally checked out as `notes-app-frontend/` inside the separate [notes-app-infra](../README.md) repository. From the infrastructure repository root, run:
+
+```bash
+# Development: Vite dev server with hot reload
+docker compose up --build
+
+# Production: static build served by Nginx
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+The development application is exposed on port `5173`. The production image serves the application through Nginx on the port configured by the infrastructure repository. Its Nginx configuration also applies HTTP Basic Auth to the frontend while leaving the proxied `/api` location available to the application.
+
+The public production deployment uses HTTPS terminated by the external hosting proxy. Communication between Nginx and the backend remains inside the Docker network.
+
+## Running manually
+
+The current Vite proxy target uses the Docker service name `notes-app-backend`, which resolves only inside the Compose network. To run the frontend directly on the host, first change the proxy target in `vite.config.ts` to `http://localhost:3000` or the address of your backend.
+
+Then install dependencies and start Vite:
+
+```bash
+npm ci
+npm run dev
+```
+
+Node.js 24 is recommended and matches the version used by the Docker image.
 
 ## Scripts
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start the development server |
-| `npm run build` | TypeScript compilation + production build |
-| `npm run preview` | Preview the production build |
-| `npm run lint` | Lint the codebase (ESLint) |
-
-## Planned features
-
-- [x] Export notes to PDF
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Type-check and create a production build |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Check the project with ESLint |

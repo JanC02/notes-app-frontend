@@ -35,6 +35,12 @@ const auth = createSlice({
     reducers: {
         clearError(state) {
             state.error = '';
+        },
+        clearAuthState(state) {
+            state.user = null;
+            state.isAuthenticated = false;
+            state.isLoading = false;
+            state.error = '';
         }
     },
     extraReducers: (builder) => {
@@ -72,13 +78,11 @@ const auth = createSlice({
                 state.isLoading = false;
                 state.error = ''
             })
-            .addCase(logout.rejected, (state, action) => {
-                if (action.payload === 'Token is required') {
-                    state.user = null;
-                    state.isAuthenticated = false;
-                    state.isLoading = false;
-                    state.error = '';
-                }
+            .addCase(logout.rejected, (state) => {
+                state.user = null;
+                state.isAuthenticated = false;
+                state.isLoading = false;
+                state.error = '';
             })
             .addCase(verifySession.pending, (state) => {
                 state.isSessionVerificationPending = true;
